@@ -15,5 +15,7 @@ If you hover over the star rating on the product, you get the usual popout ratin
 
 Install the [Tampermonkey](https://www.tampermonkey.net/) plugin for your browser, then read [the user guide](https://www.tampermonkey.net/faq.php) on how to install user scripts. Once installed, the plugin should just work automatically when you visit Amazon.
 
+## Support / contribution
+
 I wrote this for fun, so don't expect a lot of support, but bug reports and pull requests are welcome. The code is released under MIT license if you wish to fork it.
 
