@@ -3,7 +3,7 @@
 // @namespace    https://github.com/gsuberland
 // @source       https://github.com/gsuberland/amazon_3b1b_review_confidence
 // @downloadURL  https://raw.githubusercontent.com/gsuberland/amazon_3b1b_review_confidence/master/amazon_3b1b_review_confidence.js
-// @version      0.1
+// @version      0.2
 // @description  Computes confidence percentages on Amazon reviews as per 3blue1brown's video: https://www.youtube.com/watch?v=8idr1WZ1A7Q
 // @author       Graham Sutherland (@gsuberland)
 // @include      /^https://(www|smile)\.amazon\.(com|com\.br|ca|com\.mx|cn|in|co\.jp|sg|com\.tr|ae|fr|de|it|nl|es|co\.uk|com\.au)/.*$/
@@ -27,7 +27,7 @@
     // this regex matches a string such as <span class="foo">4.6 out of 5</span>...<span ...>89  customer ratings</span> as per the current HTML that Amazon uses, and outputs the 4.6 and 89 as groups 1 and 3.
     // the "out of" is matched as any sequence of a-z or accented Latin characters, and numbers can have either a single comma or period in them.
     // the "customer ratings" text is generally not localised for some reason, but fair warning: this has only been checked on a few different localisations and probably won't work on all non-English sites.
-    var popupRatingRegex = />([0-9]+([\.,][0-9]+)?)\s[a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u024F\s\.]+\s+5<.+?>([0-9]+([\.,][0-9]+)?)\s+customer\s+ratings</mi;
+    var popupRatingRegex = />([0-9]+([\.,][0-9]+)?)\s[a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u024F\s\.]+\s+5<.+?>([0-9]+([\.,][0-9]+)?)\s+(?:customer|global)\s+ratings</mi;
 
     // productRatingRegex is a regex to extract the ratings from product listings.
     // this regex matches any numeric string (incl. localised) followed by a sequence of word characters followed by a space and then the number 5, e.g. "4.6 out of 5" or "4,6 von 5"
