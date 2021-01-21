@@ -3,7 +3,7 @@
 // @namespace    https://github.com/gsuberland
 // @source       https://github.com/gsuberland/amazon_3b1b_review_confidence
 // @downloadURL  https://raw.githubusercontent.com/gsuberland/amazon_3b1b_review_confidence/master/amazon_3b1b_review_confidence.js
-// @version      0.2
+// @version      0.3
 // @description  Computes confidence percentages on Amazon reviews as per 3blue1brown's video: https://www.youtube.com/watch?v=8idr1WZ1A7Q
 // @author       Graham Sutherland (@gsuberland)
 // @include      /^https://(www|smile)\.amazon\.(com|com\.br|ca|com\.mx|cn|in|co\.jp|sg|com\.tr|ae|fr|de|it|nl|es|co\.uk|com\.au)/.*$/
@@ -21,13 +21,13 @@
     */
 
     // set this if you want a bunch of console output for debugging.
-    var debugMode = true;
+    var debugMode = false;
 
     // popupRatingRegex is a regex to extract the ratings numbers from the ratings popup card.
     // this regex matches a string such as <span class="foo">4.6 out of 5</span>...<span ...>89  customer ratings</span> as per the current HTML that Amazon uses, and outputs the 4.6 and 89 as groups 1 and 3.
     // the "out of" is matched as any sequence of a-z or accented Latin characters, and numbers can have either a single comma or period in them.
     // the "customer ratings" text is generally not localised for some reason, but fair warning: this has only been checked on a few different localisations and probably won't work on all non-English sites.
-    var popupRatingRegex = />([0-9]+([\.,][0-9]+)?)\s[a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u024F\s\.]+\s+5<.+?>([0-9]+([\.,][0-9]+)?)\s+(?:customer|global)\s+ratings</mi;
+    var popupRatingRegex = />(?<rating>[0-9]+([\.,][0-9]+)?)\s[a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u024F\s\.]+\s+5<.+?>(?<count>[0-9]+([\.,][0-9]+)*)\s+(?:customer|global)\s+ratings</mi;
 
     // productRatingRegex is a regex to extract the ratings from product listings.
     // this regex matches any numeric string (incl. localised) followed by a sequence of word characters followed by a space and then the number 5, e.g. "4.6 out of 5" or "4,6 von 5"
@@ -83,6 +83,7 @@
                 else
                 {
                     logDebugMessage("This node has not yet been processed.");
+                    logDebugMessage(ratingTextNode);
                     logDebugMessage(ratingTextNode.innerText);
                     // match the product rating regex on the node's text
                     let match = productRatingRegex.exec(ratingTextNode.innerText);
@@ -116,8 +117,8 @@
             // we only care about childList events for div element targets
             if (mutation.type == "childList" && mutation.target.nodeName == "DIV")
             {
-                // turn the added nodes into an array for later usage
-                let addedNodesArray = Array.from(mutation.addedNodes);
+                // turn the added nodes into an array for later usage (the filter removes nodes that don't have hasAttribute, e.g. text nodes)
+                let addedNodesArray = Array.from(mutation.addedNodes).filter(n => typeof n !== 'function' && typeof n.hasAttribute === 'function');
 
                 // handle popover target (box that pops up when you hover a rating)
                 if (mutation.target.className.includes("popover"))
@@ -130,8 +131,8 @@
                         logDebugMessage("Matched on popup regex.");
                         logDebugMessage(match);
                         // extract values
-                        let ratingValue = parseFloat(match[1].replace(",", ".")); // must swap out localised decimals to literals (e.g. "4,5" -> "4.5")
-                        let ratingCount = parseInt(match[3].replace(",", "").replace(".", "")); // must strip periods and commas out for localised integers (e.g. "1,589" -> "1589" and "1.589" -> "1589")
+                        let ratingValue = parseFloat(match.groups["rating"].replace(",", ".")); // must swap out localised decimals to literals (e.g. "4,5" -> "4.5")
+                        let ratingCount = parseInt(match.groups["count"].replace(",", "").replace(".", "")); // must strip periods and commas out for localised integers (e.g. "1,589" -> "1589" and "1.589" -> "1589")
                         logDebugMessage(`Rating is ${ratingValue} out of 5 with ${ratingCount} ratings.`);
                         // find the average rating and review count text elements in the hover
                         let ratingTextNode = mutation.target.querySelector('[data-hook=acr-average-stars-rating-text]');
@@ -153,10 +154,10 @@
                         }
                     }
                 }
-                else if (mutation.addedNodes.length > 0 && addedNodesArray.some(n => n.hasAttribute("data-asin")))
+                else if (mutation.addedNodes.length > 0 && addedNodesArray.some(n => n.hasAttribute("data-asin") && n.getAttribute("data-asin").length > 0))
                 {
                     logDebugMessage("Found product elements.");
-                    let productNodes = addedNodesArray.filter(n => n.hasAttribute("data-asin"));
+                    let productNodes = addedNodesArray.filter(n => n.hasAttribute("data-asin") && n.getAttribute("data-asin").length > 0);
                     for (let productNodeIdx in productNodes)
                     {
                         let productNode = productNodes[productNodeIdx];
@@ -170,7 +171,9 @@
 
     // process product elements on page load. popup elements do not need to be processed here as they will be caught by the observer.
     window.onload = function() {
-        let productNodes = document.querySelectorAll("div [data-asin]");
+        let productNodes = Array.from(document.querySelectorAll("div[data-asin]"));
+        let carouselNodes = Array.from(document.querySelectorAll("div[data-asin] li[class=a-carousel-card][role=listitem]"));
+        productNodes = productNodes.concat(carouselNodes);
         for (let productNodeIdx in productNodes)
         {
             let productNode = productNodes[productNodeIdx];
