@@ -91,8 +91,8 @@
                     {
                         logDebugMessage("Matched on product regex.");
                         // extract values
-                        let ratingValue = parseFloat(match[1].replace(",", ".")); // must swap out localised decimals to literals (e.g. "4,5" -> "4.5")
-                        let ratingCount = parseInt(countTextNode.innerText.replace(",", "").replace(".", "")); // must strip periods and commas out for localised integers (e.g. "1,589" -> "1589" and "1.589" -> "1589")
+                        let ratingValue = parseFloat(match[1].replaceAll(",", ".")); // must swap out localised decimals to literals (e.g. "4,5" -> "4.5")
+                        let ratingCount = parseInt(countTextNode.innerText.replaceAll(",", "").replaceAll(".", "")); // must strip periods and commas out for localised integers (e.g. "1,589" -> "1589" and "1.589" -> "1589")
                         logDebugMessage(`Rating is ${ratingValue} out of 5 with ${ratingCount} ratings.`);
                         // calculate the confidence values
                         let [confidenceRatingPercent, originalRatingPercent, correctionAmount] = calculateConfidenceRating(ratingValue, ratingCount);
@@ -131,8 +131,8 @@
                         logDebugMessage("Matched on popup regex.");
                         logDebugMessage(match);
                         // extract values
-                        let ratingValue = parseFloat(match.groups["rating"].replace(",", ".")); // must swap out localised decimals to literals (e.g. "4,5" -> "4.5")
-                        let ratingCount = parseInt(match.groups["count"].replace(",", "").replace(".", "")); // must strip periods and commas out for localised integers (e.g. "1,589" -> "1589" and "1.589" -> "1589")
+                        let ratingValue = parseFloat(match.groups["rating"].replaceAll(",", ".")); // must swap out localised decimals to literals (e.g. "4,5" -> "4.5")
+                        let ratingCount = parseInt(match.groups["count"].replaceAll(",", "").replaceAll(".", "")); // must strip periods and commas out for localised integers (e.g. "1,589" -> "1589" and "1.589" -> "1589")
                         logDebugMessage(`Rating is ${ratingValue} out of 5 with ${ratingCount} ratings.`);
                         // find the average rating and review count text elements in the hover
                         let ratingTextNode = mutation.target.querySelector('[data-hook=acr-average-stars-rating-text]');
