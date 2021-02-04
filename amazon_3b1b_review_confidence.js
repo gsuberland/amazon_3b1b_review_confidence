@@ -3,7 +3,7 @@
 // @namespace    https://github.com/gsuberland
 // @source       https://github.com/gsuberland/amazon_3b1b_review_confidence
 // @downloadURL  https://raw.githubusercontent.com/gsuberland/amazon_3b1b_review_confidence/master/amazon_3b1b_review_confidence.js
-// @version      0.3
+// @version      0.3.1
 // @description  Computes confidence percentages on Amazon reviews as per 3blue1brown's video: https://www.youtube.com/watch?v=8idr1WZ1A7Q
 // @author       Graham Sutherland (@gsuberland)
 // @include      /^https://(www|smile)\.amazon\.(com|com\.br|ca|com\.mx|cn|in|co\.jp|sg|com\.tr|ae|fr|de|it|nl|es|co\.uk|com\.au)/.*$/
@@ -68,7 +68,7 @@
     {
         // find the average rating and review count text elements in the product node
         let ratingTextNode = productNode.querySelector("span [data-action=a-popover] > a span");
-        let countTextNode = productNode.querySelector("span [aria-label] > a > span");
+        let countTextNode = productNode.querySelector("span [aria-label] > a > span:not([data-component-type*='badge'])");
         if (ratingTextNode != null && countTextNode != null)
         {
             logDebugMessage("Found rating text nodes.");
