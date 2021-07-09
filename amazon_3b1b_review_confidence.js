@@ -27,7 +27,7 @@
     // this regex matches a string such as <span class="foo">4.6 out of 5</span>...<span ...>89  customer ratings</span> as per the current HTML that Amazon uses, and outputs the 4.6 and 89 as groups 1 and 3.
     // the "out of" is matched as any sequence of a-z or accented Latin characters, and numbers can have either a single comma or period in them.
     // the "customer ratings" text is generally not localised for some reason, but fair warning: this has only been checked on a few different localisations and probably won't work on all non-English sites.
-    var popupRatingRegex = />(?<rating>[0-9]+([\.,][0-9]+)?)\s[a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u024F\s\.]+\s+5<.+?>(?<count>[0-9]+([\.,][0-9]+)*)\s+(?:customer|global)\s+ratings</mi;
+    var popupRatingRegex = />(?<rating>[0-9]+([\.,][0-9]+)?)\s[a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u024F\s\.]+\s+5<.+?>(?<count>[0-9]+([\.,][0-9]+)*)\s+(?:customer|global)\s+ratings?</mi;
 
     // productRatingRegex is a regex to extract the ratings from product listings.
     // this regex matches any numeric string (incl. localised) followed by a sequence of word characters followed by a space and then the number 5, e.g. "4.6 out of 5" or "4,6 von 5"
